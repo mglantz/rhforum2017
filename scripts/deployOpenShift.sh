@@ -76,34 +76,6 @@ cat > /home/${SUDOUSER}/postinstall.yml <<EOF
     shell: htpasswd -cb /etc/origin/master/htpasswd ${SUDOUSER} "${PASSWORD}"
 EOF
 
-# Run on only MASTER-0
-cat > /home/${SUDOUSER}/postinstall2.yml <<EOF
----
-- hosts: nfs
-  remote_user: ${SUDOUSER}
-  become: yes
-  become_method: sudo
-  vars:
-    description: "Make user cluster admin"
-  tasks:
-  - name: make OpenShift user cluster admin
-    shell: oadm policy add-cluster-role-to-user cluster-admin $SUDOUSER --config=/etc/origin/master/admin.kubeconfig
-EOF
-
-# Run on all nodes
-cat > /home/${SUDOUSER}/postinstall3.yml <<EOF
----
-- hosts: nodes
-  remote_user: ${SUDOUSER}
-  become: yes
-  become_method: sudo
-  vars:
-    description: "Set password for Cockpit"
-  tasks:
-  - name: configure Cockpit password
-    shell: echo "${PASSWORD}"|passwd root --stdin
-EOF
-
 # Run on all masters
 cat > /home/${SUDOUSER}/postinstall4.yml <<EOF
 ---
@@ -136,7 +108,6 @@ cat > /etc/ansible/hosts <<EOF
 [OSEv3:children]
 masters
 nodes
-nfs
 
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
@@ -149,7 +120,6 @@ openshift_use_dnsmasq=true
 openshift_disable_check=disk_availability
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
-osm_use_cockpit=true
 os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 
 openshift_master_cluster_hostname=$MASTERPUBLICIPHOSTNAME
@@ -159,19 +129,8 @@ openshift_master_cluster_public_hostname=$MASTERPUBLICIPHOSTNAME
 # Enable HTPasswdPasswordIdentityProvider
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 
-# Configure persistent storage via nfs server on master
-openshift_hosted_registry_storage_kind=nfs
-openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
-openshift_hosted_registry_storage_host=$MASTER-0.$DOMAIN
-openshift_hosted_registry_storage_nfs_directory=/exports
-openshift_hosted_registry_storage_volume_name=registry
-openshift_hosted_registry_storage_volume_size=5Gi
-
 # host group for masters
 [masters]
-$MASTER-0.$DOMAIN
-
-[nfs]
 $MASTER-0.$DOMAIN
 
 # host group for nodes
