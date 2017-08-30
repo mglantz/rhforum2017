@@ -76,6 +76,21 @@ cat > /home/${SUDOUSER}/postinstall.yml <<EOF
     shell: htpasswd -cb /etc/origin/master/htpasswd ${SUDOUSER} "${PASSWORD}"
 EOF
 
+# Run on only MASTER-0
+cat > /home/${SUDOUSER}/postinstall2.yml <<EOF
+---
+- hosts: nfs
+  remote_user: ${SUDOUSER}
+  become: yes
+  become_method: sudo
+  vars:
+    description: "Make user cluster admin"
+  tasks:
+  - name: make OpenShift user cluster admin
+    shell: oadm policy add-cluster-role-to-user cluster-admin $SUDOUSER --config=/etc/origin/master/admin.kubeconfig
+EOF
+
+
 # Run on all masters
 cat > /home/${SUDOUSER}/postinstall4.yml <<EOF
 ---
@@ -113,14 +128,13 @@ nodes
 [OSEv3:vars]
 ansible_ssh_user=$SUDOUSER
 ansible_become=yes
-openshift_install_examples=true
+openshift_install_examples=false
 deployment_type=openshift-enterprise
 docker_udev_workaround=true
 openshift_use_dnsmasq=true
 openshift_disable_check=disk_availability
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
-os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 
 openshift_master_cluster_hostname=$MASTERPUBLICIPHOSTNAME
 openshift_master_cluster_public_hostname=$MASTERPUBLICIPHOSTNAME
@@ -155,15 +169,13 @@ lb
 [OSEv3:vars]
 ansible_ssh_user=$SUDOUSER
 ansible_become=yes
-openshift_install_examples=true
+openshift_install_examples=false
 deployment_type=openshift-enterprise
 docker_udev_workaround=true
 openshift_use_dnsmasq=true
 openshift_disable_check=disk_availability
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
-osm_use_cockpit=true
-os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 
 openshift_master_cluster_method=native
 openshift_master_cluster_hostname=$BASTION
@@ -172,14 +184,6 @@ openshift_master_cluster_public_hostname=$MASTERPUBLICIPHOSTNAME
 
 # Enable HTPasswdPasswordIdentityProvider
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
-
-# Configure persistent storage via nfs server on master
-openshift_hosted_registry_storage_kind=nfs
-openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
-openshift_hosted_registry_storage_host=$MASTER-0.$DOMAIN
-openshift_hosted_registry_storage_nfs_directory=/exports
-openshift_hosted_registry_storage_volume_name=registry
-openshift_hosted_registry_storage_volume_size=5Gi
 
 # host group for masters
 [masters]
@@ -255,11 +259,6 @@ runuser -l $SUDOUSER -c "ansible-playbook ~/postinstall.yml"
 echo $(date) "- Assigning cluster admin rights to user"
 
 runuser -l $SUDOUSER -c "ansible-playbook ~/postinstall2.yml"
-
-# Setting password for Cockpit
-echo $(date) "- Assigning password for root, which is used to login to Cockpit"
-
-runuser -l $SUDOUSER -c "ansible-playbook ~/postinstall3.yml"
 
 # Unset of OPENSHIFT_DEFAULT_REGISTRY. Just the easiest way out.
 
