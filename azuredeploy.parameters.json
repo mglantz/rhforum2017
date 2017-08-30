@@ -1,0 +1,66 @@
+﻿{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"_artifactsLocation": {
+			"value": "https://raw.githubusercontent.com/OCP_USER/rhforum2017/master/"
+		},
+		"masterVmSize": {
+			"value": "Standard_DS4_v2"
+		},
+		"nodeVmSize": {
+			"value": "Standard_DS3_v2"
+		},
+		"openshiftClusterPrefix": {
+			"value": "ocp"
+		},
+		"openshiftMasterPublicIpDnsLabel": {
+			"value": "REPLACEmaster"
+		},
+		"infraLbPublicIpDnsLabel": {
+			"value": "REPLACEapps"
+		},
+		"masterInstanceCount": {
+			"value": 1
+		},
+		"nodeInstanceCount": {
+			"value": 1
+		},
+		"dataDiskSize": {
+			"value": 128
+		},
+		"adminUsername": {
+			"value": "OCP_USER"
+		},
+		"openshiftPassword": {
+			"value": "OCP_PASSWORD"
+		},
+		"cloudAccessUsername": {
+			"value": "RHN_ACCOUNT"
+		},
+		"cloudAccessPassword": {
+			"value": "RHN_PASSWORD"
+		},
+		"cloudAccessPoolId": {
+			"value": "SUBSCRIPTION_POOL_ID"
+		},
+		"sshPublicKey": {
+			"value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4scEzAmu/wcjvUpo6wCgViUhG1XrUQj/JTwB5r1vYHrm+R3BkeBxWyB0CtLH2DljjnzMugjWFHy3ccsLi776cRS9mGpH5ySu5CPUaKBv9Cm1iBRRjcxcrSXNZfxEJ1OBWOi7xrvO7jQbHqWtM+yQxAyXGKjKhV3TfGuNAvGeZNCNpULNfOKRgGf10TL2uUyBNTBllgT825+hZNSv567nVTC04A38zjc3s7JTXMKulmw+cjCLScnH8/1SrFzbRA5vJPyKoiomuy63gk5v6KJzfbpxqfGFH9N0slxT4YFkxGN7/NyPE4r9pQGlXm9eDpx9xzz3Bif46LYnqX1MxsNyz OCP_USER@deepRed"
+		},
+		"keyVaultResourceGroup": {
+			"value": "REPLACE"
+		},
+		"keyVaultName": {
+			"value": "REPLACEKeyVaultName"
+		},
+		"keyVaultSecret": {
+			"value": "REPLACESecretName"
+		},
+		"defaultSubDomainType": {
+			"value": "xipio"
+		},
+		"defaultSubDomain": {
+			"value": "customdomain.com"
+		}
+	}
+}
