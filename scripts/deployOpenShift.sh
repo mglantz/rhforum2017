@@ -135,6 +135,7 @@ openshift_use_dnsmasq=true
 openshift_disable_check=disk_availability
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
+osm_use_cockpit=false
 
 openshift_master_cluster_hostname=$MASTERPUBLICIPHOSTNAME
 openshift_master_cluster_public_hostname=$MASTERPUBLICIPHOSTNAME
